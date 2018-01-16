@@ -723,7 +723,12 @@ function askForField(done) {
                     {
                         name: 'Required',
                         value: 'required'
-                    }/* ,
+                    },
+                    {
+                        name: 'Primary Key',
+                        value: 'primarykey'
+                    }
+                    /* ,
                     {
                         name: 'Unique',
                         value: 'unique'
