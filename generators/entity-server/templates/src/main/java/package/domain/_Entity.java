@@ -114,30 +114,35 @@ import static org.springframework.data.couchbase.core.mapping.id.GenerationStrat
 public class <%= entityClass %> implements Serializable {
 
     private static final long serialVersionUID = 1L;
-<% if (databaseType === 'sql') { %>
+<%#
+    Only add an automatically generated primary key if none was set manually.
+-%>
+<%_ if (fieldsContainPrimaryKey !== true) { _%>
+    <% if (databaseType === 'sql') { %>
     @Id
-    <%_ if (prodDatabaseType === 'mysql' || prodDatabaseType === 'mariadb') { _%>
+        <%_ if (prodDatabaseType === 'mysql' || prodDatabaseType === 'mariadb') { _%>
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    <%_ }  else { _%>
+        <%_ }  else { _%>
     @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "sequenceGenerator")
     @SequenceGenerator(name = "sequenceGenerator")
-    <%_ } _%>
+        <%_ } _%>
     private Long id;
-<% } if (databaseType === 'couchbase') { %>
+    <% } if (databaseType === 'couchbase') { %>
     public static final String PREFIX = "<%= entityInstance.toLowerCase() %>";
 
     @SuppressWarnings("unused")
     @IdPrefix
     private String prefix = PREFIX;
-<%_ } if (databaseType === 'mongodb' || databaseType === 'couchbase') { %>
+    <%_ } if (databaseType === 'mongodb' || databaseType === 'couchbase') { %>
     @Id<% if (databaseType === 'couchbase') { %>
     @GeneratedValue(strategy = UNIQUE, delimiter = ID_DELIMITER)<% } %>
     private String id;
-<%_ } if (databaseType === 'cassandra') { %>
+    <%_ } if (databaseType === 'cassandra') { %>
     @PartitionKey
     private UUID id;
-<%_ } _%>
+    <%_ } _%>
 
+<%_ } _%>
 <%_ for (idx in fields) {
     if (typeof fields[idx].javadoc !== 'undefined') { _%>
 <%- formatAsFieldJavadoc(fields[idx].javadoc) %>
@@ -156,6 +161,13 @@ public class <%= entityClass %> implements Serializable {
             required = true;
         } _%>
     <%- include ../common/field_validators -%>
+    <%_ } _%>
+    <%_ if (fieldValidate && fieldValidateRules.includes('primarykey')) { _%>
+        <%_ if (databaseType === 'sql' || databaseType === 'mongodb' || databaseType === 'couchbase') { _%>
+    @Id
+        <%_ } if (databaseType === 'cassandra') { _%>
+    @PartitionKey
+        <%_ } _%>
     <%_ } _%>
     <%_ if (typeof fields[idx].javadoc != 'undefined') { _%>
     @ApiModelProperty(value = "<%- formatAsApiDescription(fields[idx].javadoc) %>"<% if (required) { %>, required = true<% } %>)
@@ -273,11 +285,11 @@ public class <%= entityClass %> implements Serializable {
     <%_ }
     } _%>
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
-    public <% if (databaseType === 'sql') { %>Long<% } %><% if (databaseType === 'mongodb' || databaseType === 'couchbase') { %>String<% } %><% if (databaseType === 'cassandra') { %>UUID<% } %> getId() {
+    public <% if (fieldsContainPrimaryKey === true) { %><%= primaryKeyType %><% }  else { if (databaseType === 'sql') { %>Long<% } %><% if (databaseType === 'mongodb' || databaseType === 'couchbase') { %>String<% } %><% if (databaseType === 'cassandra') { %>UUID<% }} %> getId() {
         return id;
     }
 
-    public void setId(<% if (databaseType === 'sql') { %>Long<% } %><% if (databaseType === 'mongodb' || databaseType === 'couchbase') { %>String<% } %><% if (databaseType === 'cassandra') { %>UUID<% } %> id) {
+    public void setId(<% if (fieldsContainPrimaryKey === true) { %><%= primaryKeyType %><% } else { if (databaseType === 'sql') { %>Long<% } %><% if (databaseType === 'mongodb' || databaseType === 'couchbase') { %>String<% } %><% if (databaseType === 'cassandra') { %>UUID<% }} %> id) {
         this.id = id;
     }
 <%_ for (idx in fields) {

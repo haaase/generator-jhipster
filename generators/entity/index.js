@@ -433,6 +433,8 @@ module.exports = class extends BaseGenerator {
                 context.entityTranslationKeyMenu = _.camelCase(context.entityStateName);
                 context.jhiTablePrefix = this.getTableName(context.jhiPrefix);
 
+                context.fieldsContainPrimaryKey = false;
+                context.primaryKeyType = '';
                 context.fieldsContainInstant = false;
                 context.fieldsContainZonedDateTime = false;
                 context.fieldsContainLocalDate = false;
@@ -535,6 +537,10 @@ module.exports = class extends BaseGenerator {
 
                     if (field.fieldValidate) {
                         context.validation = true;
+                        if (field.fieldValidateRules.includes('primarykey')) {
+                            context.fieldsContainPrimaryKey = true;
+                            context.primaryKeyType = field.fieldType;
+                        }
                     }
                 });
                 // Load in-memory data for relationships

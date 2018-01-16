@@ -461,8 +461,8 @@ function askForField(done) {
     const databaseType = context.databaseType;
     const fieldNamesUnderscored = context.fieldNamesUnderscored;
     const validationRules = context.fields.map(field =>
-         field.fieldValidateRules).reduce((acc, rules) =>
-          rules.concat(acc), [])
+        field.fieldValidateRules).reduce((acc, rules) =>
+        acc.concat(rules), []);
     const prompts = [
         {
             type: 'confirm',
@@ -733,6 +733,12 @@ function askForField(done) {
                         value: 'unique'
                     } */
                 ];
+                if (!validationRules.includes('primarykey')) { // only show primary key option if no primary key was defined so far
+                    opts.push({
+                        name: 'Primary Key',
+                        value: 'primarykey'
+                    });
+                }
                 if (response.fieldType === 'String' || response.fieldTypeBlobContent === 'text') {
                     opts.push(
                         {
@@ -770,14 +776,6 @@ function askForField(done) {
                             value: 'maxbytes'
                         }
                     );
-                }
-                if (!validationRules.includes('primarykey')){ // only show primary key option if no primary key was defined so far
-                      opts.push(
-                          {
-                              name: 'Primary Key',
-                              value: 'primarykey'
-                          }
-                      );
                 }
                 return opts;
             },
