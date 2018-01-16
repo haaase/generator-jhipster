@@ -460,6 +460,9 @@ function askForField(done) {
     const prodDatabaseType = context.prodDatabaseType;
     const databaseType = context.databaseType;
     const fieldNamesUnderscored = context.fieldNamesUnderscored;
+    const validationRules = context.fields.map(field =>
+         field.fieldValidateRules).reduce((acc, rules) =>
+          rules.concat(acc), [])
     const prompts = [
         {
             type: 'confirm',
@@ -723,10 +726,6 @@ function askForField(done) {
                     {
                         name: 'Required',
                         value: 'required'
-                    },
-                    {
-                        name: 'Primary Key',
-                        value: 'primarykey'
                     }
                     /* ,
                     {
@@ -771,6 +770,14 @@ function askForField(done) {
                             value: 'maxbytes'
                         }
                     );
+                }
+                if (!validationRules.includes('primarykey')){ // only show primary key option if no primary key was defined so far
+                      opts.push(
+                          {
+                              name: 'Primary Key',
+                              value: 'primarykey'
+                          }
+                      );
                 }
                 return opts;
             },
