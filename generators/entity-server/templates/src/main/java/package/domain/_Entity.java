@@ -285,12 +285,20 @@ public class <%= entityClass %> implements Serializable {
     <%_ }
     } _%>
     // jhipster-needle-entity-add-field - JHipster will add fields here, do not remove
-    public <% if (fieldsContainPrimaryKey === true) { %><%= primaryKeyType %><% }  else { if (databaseType === 'sql') { %>Long<% } %><% if (databaseType === 'mongodb' || databaseType === 'couchbase') { %>String<% } %><% if (databaseType === 'cassandra') { %>UUID<% }} %> getId() {
+    public <% if (fieldsContainPrimaryKey === true) { %><%= primaryKeyType %> getId(){
+        return <%= primaryKeyName %>;
+    }
+    <% } else { if (databaseType === 'sql') { %>Long<% } %><% if (databaseType === 'mongodb' || databaseType === 'couchbase') { %>String<% } %><% if (databaseType === 'cassandra') { %>UUID<% } %> getId() {
         return id;
     }
+    <%_ } _%>
 
     public void setId(<% if (fieldsContainPrimaryKey === true) { %><%= primaryKeyType %><% } else { if (databaseType === 'sql') { %>Long<% } %><% if (databaseType === 'mongodb' || databaseType === 'couchbase') { %>String<% } %><% if (databaseType === 'cassandra') { %>UUID<% }} %> id) {
+        <%_ if (fieldsContainPrimaryKey === true) { _%>
+        this.<%= primaryKeyName %> = id;
+        <%_ } else { _%>
         this.id = id;
+        <%_ } _%>
     }
 <%_ for (idx in fields) {
         const fieldType = fields[idx].fieldType;

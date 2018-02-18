@@ -435,6 +435,7 @@ module.exports = class extends BaseGenerator {
 
                 context.fieldsContainPrimaryKey = false;
                 context.primaryKeyType = '';
+                context.primaryKeyName = '';
                 context.fieldsContainInstant = false;
                 context.fieldsContainZonedDateTime = false;
                 context.fieldsContainLocalDate = false;
@@ -539,6 +540,7 @@ module.exports = class extends BaseGenerator {
                         context.validation = true;
                         if (field.fieldValidateRules.includes('primarykey')) {
                             context.fieldsContainPrimaryKey = true;
+                            context.primaryKeyName = field.fieldName;
                             context.primaryKeyType = field.fieldType;
                         }
                     }
