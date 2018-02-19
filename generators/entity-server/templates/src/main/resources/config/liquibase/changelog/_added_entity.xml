@@ -48,9 +48,10 @@
     -->
     <changeSet id="<%= changelogDate %>-1" author="jhipster">
         <createTable tableName="<%= entityTableName %>">
+            <% if (!fieldsContainPrimaryKey) { %>
             <column name="id" type="bigint" autoIncrement="${autoIncrement}">
                 <constraints primaryKey="true" nullable="false"/>
-            </column><% for (idx in fields) {
+            </column><% } for (idx in fields) {
             let nullable = true;
             if (fields[idx].fieldValidate === true && fields[idx].fieldValidateRules.includes('required')) {
                 nullable = false;
@@ -62,6 +63,10 @@
             let maxlength = 255;
             if (fields[idx].fieldValidate === true && fields[idx].fieldValidateRules.includes('maxlength')) {
                 maxlength = fields[idx].fieldValidateRulesMaxlength;
+            }
+            let pk = false;
+            if (fields[idx].fieldValidate === true && fields[idx].fieldValidateRules.includes('primarykey')) {
+                pk = true;
             }
             const fieldType = fields[idx].fieldType;
             const fieldTypeBlobContent = fields[idx].fieldTypeBlobContent;
@@ -102,7 +107,9 @@
             }
             %>
             <column name="<%=columnName %>" type="<%=columnType %>">
-                <%_ if (unique) { _%>
+                <%_ if (pk) { _%>
+                <constraints primaryKey="true" nullable="false"/>
+                <%_ } else if (unique) { _%>
                 <constraints nullable="<%= nullable %>" unique="true" />
                 <%_ } else { _%>
                 <constraints nullable="<%= nullable %>" />

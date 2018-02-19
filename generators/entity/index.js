@@ -433,8 +433,8 @@ module.exports = class extends BaseGenerator {
                 context.entityTranslationKeyMenu = _.camelCase(context.entityStateName);
                 context.jhiTablePrefix = this.getTableName(context.jhiPrefix);
 
+                context.pkType = this.getPkType(context.databaseType);
                 context.fieldsContainPrimaryKey = false;
-                context.primaryKeyType = '';
                 context.primaryKeyName = '';
                 context.fieldsContainInstant = false;
                 context.fieldsContainZonedDateTime = false;
@@ -540,8 +540,8 @@ module.exports = class extends BaseGenerator {
                         context.validation = true;
                         if (field.fieldValidateRules.includes('primarykey')) {
                             context.fieldsContainPrimaryKey = true;
-                            context.primaryKeyName = field.fieldName;
-                            context.primaryKeyType = field.fieldType;
+                            context.pkName = field.fieldName;
+                            context.pkType = field.fieldType;
                         }
                     }
                 });
@@ -675,8 +675,6 @@ module.exports = class extends BaseGenerator {
                     }
                     context.differentRelationships[entityType].push(relationship);
                 });
-
-                context.pkType = this.getPkType(context.databaseType);
             },
 
             insight() {

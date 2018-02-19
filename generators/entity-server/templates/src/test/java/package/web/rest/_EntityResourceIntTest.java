@@ -391,6 +391,7 @@ _%>
         <%_ } _%>
     }
 
+    <%_ if (!fieldsContainPrimaryKey) { _%>
     @Test<% if (databaseType === 'sql') { %>
     @Transactional<% } %>
     public void create<%= entityClass %>WithExistingId() throws Exception {
@@ -412,6 +413,7 @@ _%>
         List<<%= entityClass %>> <%= entityInstance %>List = <%= entityInstance %>Repository.findAll();
         assertThat(<%= entityInstance %>List).hasSize(databaseSizeBeforeCreate);
     }
+    <%_ } _%>
 <% for (idx in fields) { %><% if (fields[idx].fieldValidate === true) {
     let required = false;
     if (fields[idx].fieldValidate === true && fields[idx].fieldValidateRules.includes('required')) {
@@ -437,6 +439,7 @@ _%>
         assertThat(<%= entityInstance %>List).hasSize(databaseSizeBeforeTest);
     }
 <%  } } } %>
+    <%_ if (!fieldsContainPrimaryKey) { _%>
     @Test<% if (databaseType === 'sql') { %>
     @Transactional<% } %>
     public void getAll<%= entityClassPlural %>() throws Exception {
@@ -455,8 +458,10 @@ _%>
             <%_ } _%>
             .andExpect(jsonPath("$.[*].<%=fields[idx].fieldName%>").value(hasItem(<% if ((fields[idx].fieldType === 'byte[]' || fields[idx].fieldType === 'ByteBuffer') && fields[idx].fieldTypeBlobContent !== 'text') { %>Base64Utils.encodeToString(<% } else if (fields[idx].fieldType === 'ZonedDateTime') { %>sameInstant(<% } %><%='DEFAULT_' + fields[idx].fieldNameUnderscored.toUpperCase()%><% if ((fields[idx].fieldType === 'byte[]' || fields[idx].fieldType === 'ByteBuffer') && fields[idx].fieldTypeBlobContent !== 'text') { %><% if (databaseType === 'cassandra') { %>.array()<% } %>)<% } else if (fields[idx].fieldType === 'Integer') { %><% } else if (fields[idx].fieldType === 'Long') { %>.intValue()<% } else if (fields[idx].fieldType === 'Float' || fields[idx].fieldType === 'Double') { %>.doubleValue()<% } else if (fields[idx].fieldType === 'BigDecimal') { %>.intValue()<% } else if (fields[idx].fieldType === 'Boolean') { %>.booleanValue()<% } else if (fields[idx].fieldType === 'ZonedDateTime') { %>)<% } else { %>.toString()<% } %>)))<% } %>;
     }
+    <%_ } _%>
 
-    @Test<% if (databaseType === 'sql') { %>
+    <%_ if (!fieldsContainPrimaryKey){ _%>
+    @Test<% if (databaseType === 'sql'){ %>
     @Transactional<% } %>
     public void get<%= entityClass %>() throws Exception {
         // Initialize the database
@@ -474,6 +479,7 @@ _%>
             <%_ } _%>
             .andExpect(jsonPath("$.<%=fields[idx].fieldName%>").value(<% if ((fields[idx].fieldType === 'byte[]' || fields[idx].fieldType === 'ByteBuffer') && fields[idx].fieldTypeBlobContent !== 'text') { %>Base64Utils.encodeToString(<% } else if (fields[idx].fieldType === 'ZonedDateTime') { %>sameInstant(<% } %><%='DEFAULT_' + fields[idx].fieldNameUnderscored.toUpperCase()%><% if ((fields[idx].fieldType === 'byte[]' || fields[idx].fieldType === 'ByteBuffer') && fields[idx].fieldTypeBlobContent !== 'text') { %><% if (databaseType === 'cassandra') { %>.array()<% } %>)<% } else if (fields[idx].fieldType === 'Integer') { %><% } else if (fields[idx].fieldType === 'Long') { %>.intValue()<% } else if (fields[idx].fieldType === 'Float' || fields[idx].fieldType === 'Double') { %>.doubleValue()<% } else if (fields[idx].fieldType === 'BigDecimal') { %>.intValue()<% } else if (fields[idx].fieldType === 'Boolean') { %>.booleanValue()<% } else if (fields[idx].fieldType === 'ZonedDateTime') { %>)<% } else { %>.toString()<% } %>))<% } %>;
     }
+    <%_ } _%>
 <%_ if (jpaMetamodelFiltering) {
         fields.forEach((searchBy) => {
             // we can't filter by all the fields.
@@ -621,7 +627,7 @@ _%>
             .andExpect(status().isNotFound());
     }
 
-    @Test<% if (databaseType === 'sql') { %>
+    @Test<% if (databaseType === 'sql' && !fieldsContainPrimaryKey) { %>
     @Transactional<% } %>
     public void update<%= entityClass %>() throws Exception {
         // Initialize the database
@@ -753,6 +759,7 @@ _%>
             .andExpect(jsonPath("$.[*].<%=fields[idx].fieldName%>").value(hasItem(<% if ((fields[idx].fieldType === 'byte[]' || fields[idx].fieldType === 'ByteBuffer') && fields[idx].fieldTypeBlobContent !== 'text') { %>Base64Utils.encodeToString(<% } else if (fields[idx].fieldType === 'ZonedDateTime') { %>sameInstant(<% } %><%='DEFAULT_' + fields[idx].fieldNameUnderscored.toUpperCase()%><% if ((fields[idx].fieldType === 'byte[]' || fields[idx].fieldType === 'ByteBuffer') && fields[idx].fieldTypeBlobContent !== 'text') { %><% if (databaseType === 'cassandra') { %>.array()<% } %>)<% } else if (fields[idx].fieldType === 'Integer') { %><% } else if (fields[idx].fieldType === 'Long') { %>.intValue()<% } else if (fields[idx].fieldType === 'Float' || fields[idx].fieldType === 'Double') { %>.doubleValue()<% } else if (fields[idx].fieldType === 'BigDecimal') { %>.intValue()<% } else if (fields[idx].fieldType === 'Boolean') { %>.booleanValue()<% } else if (fields[idx].fieldType === 'ZonedDateTime') { %>)<% } else { %>.toString()<% } %>)))<% } %>;
     }<% } %>
 
+    <%_ if (!fieldsContainPrimaryKey){ _%>
     @Test<% if (databaseType === 'sql') { %>
     @Transactional<% } %>
     public void equalsVerifier() throws Exception {
@@ -767,6 +774,7 @@ _%>
         <%= entityInstance %>1.setId(null);
         assertThat(<%= entityInstance %>1).isNotEqualTo(<%= entityInstance %>2);
     }
+    <%_ } _%>
     <%_ if (dto === 'mapstruct') { _%>
 
     @Test<% if (databaseType === 'sql') { %>
